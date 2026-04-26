@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCode v1.0-CN — 终端 AI 编程助手 | 中文输入法突破</title>
+  <meta name="description" content="OpenCode — 首个在终端 TUI 中原生支持中文输入法的 AI 编程助手。八轮安全加固，282 测试全通过，70+ 缺陷修复。">
+  <meta name="keywords" content="opencode, AI, coding agent, terminal, TUI, Chinese IME, 中文输入法, 编程助手">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --bg-card-hover: #1c2333;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-secondary: #8b949e;
+      --accent: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #bc8cff;
+      --accent-cyan: #39d2c0;
+      --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+      background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at center, rgba(88,166,255,0.08) 0%, transparent 70%);
+      animation: pulse 8s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+    .hero-logo {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 24px;
+      border-radius: 24px;
+      background: var(--gradient-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      box-shadow: 0 0 60px rgba(102,126,234,0.3);
+      position: relative;
+      z-index: 1;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(135deg, #e6edf3, #58a6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .badge-green { border-color: var(--accent-green); color: var(--accent-green); }
+    .badge-blue { border-color: var(--accent); color: var(--accent); }
+    .badge-orange { border-color: var(--accent-orange); color: var(--accent-orange); }
+    .badge-purple { border-color: var(--accent-purple); color: var(--accent-purple); }
+    .badge-cyan { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+    .btn {
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--gradient-1);
+      color: white;
+      box-shadow: 0 4px 20px rgba(102,126,234,0.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(102,126,234,0.6); }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+    .section {
+      padding: 40px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .section:last-child { border-bottom: none; }
+    .section h2 {
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section h3 {
+      font-size: 1.3rem;
+      margin: 24px 0 12px;
+    }
+    .highlight-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin: 20px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .highlight-box.ime {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 30px rgba(57,210,192,0.1);
+    }
+    .highlight-box.ime::before {
+      content: '🀄';
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      font-size: 4rem;
+      opacity: 0.15;
+    }
+    .highlight-box p { margin-bottom: 12px; color: var(--text-secondary); }
+    .highlight-box ul { list-style: none; padding: 0; }
+    .highlight-box li {
+      padding: 8px 0;
+      padding-left: 24px;
+      position: relative;
+      color: var(--text-secondary);
+    }
+    .highlight-box li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--accent-cyan);
+      font-weight: bold;
+    }
+    .highlight-box li strong { color: var(--text); }
+    .callout {
+      background: rgba(57,210,192,0.08);
+      border-left: 3px solid var(--accent-cyan);
+      padding: 16px 20px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: var(--text-secondary);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .stat-card:hover { border-color: var(--accent); background: var(--bg-card-hover); }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .stat-number.green { color: var(--accent-green); }
+    .stat-number.blue { color: var(--accent); }
+    .stat-number.orange { color: var(--accent-orange); }
+    .stat-number.cyan { color: var(--accent-cyan); }
+    .stat-label { color: var(--text-secondary); font-size: 0.9rem; }
+    .hardening-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    .hardening-table th, .hardening-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .hardening-table th {
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
+    .hardening-table tr:hover { background: var(--bg-card-hover); }
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 16px 0;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+    }
+    .code-block .comment { color: var(--text-secondary); }
+    .code-block .cmd { color: var(--accent-green); }
+    .code-block .flag { color: var(--accent-orange); }
+    .feature-list { list-style: none; padding: 0; }
+    .feature-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(48,54,61,0.5);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .feature-list li:last-child { border-bottom: none; }
+    .feature-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    .tag { 
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .tag-new { background: rgba(63,185,80,0.2); color: var(--accent-green); }
+    .tag-hot { background: rgba(248,81,73,0.2); color: var(--accent-red); }
+    .tag-fix { background: rgba(210,153,34,0.2); color: var(--accent-orange); }
+    .progress-bar {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1s ease;
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-logo">🤖</div>
+  <h1>OpenCode v1.0-CN</h1>
+  <p class="subtitle">开源的 AI Coding Agent — 终端中的智能编程伙伴</p>
+  <div class="badges">
+    <span class="badge badge-green">✅ 282 测试全通过</span>
+    <span class="badge badge-cyan">🀄 中文输入法可用</span>
+    <span class="badge badge-orange">🛡️ 八轮安全加固</span>
+    <span class="badge badge-blue">🔒 36项安全审计</span>
+    <span class="badge badge-purple">🌐 635 key i18n</span>
+  </div>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="https://gitee.com/xusuai/opencode-cn/releases/v1.0-CN">⬇️ 下载 Linux x64 二进制</a>
+    <a class="btn btn-secondary" href="https://gitee.com/xusuai/opencode-cn">📂 查看源码</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 核心突破：中文输入法 -->
+  <div class="section">
+    <h2>🀄 中文输入法突破 — 终端 TUI 的不可能变为可能</h2>
+    <div class="highlight-box ime">
+      <p>OpenCode 是<strong style="color:var(--accent-cyan)">首个在终端 TUI 中原生支持中文（CJK）输入法</strong>的 AI 编程助手。</p>
+      <ul>
+        <li><strong>根因发现</strong>：opentui 的 <code>createCliRenderer</code> 内部对 <code>useKittyKeyboard</code> 执行 <code>null ?? {}</code>，设 <code>null</code> 反而<strong>启用</strong>了 Kitty 协议 — 将所有按键编码为 CSI 转义序列，完全绕过 IME 组合</li>
+        <li><strong>修复方案</strong>：在创建 Renderer 后显式调用 <code>renderer.disableKittyKeyboard()</code>，发送 <code>\x1b[>1u</code> 关闭 Kitty 协议并重置 stdin 解析器</li>
+        <li><strong>环境适配</strong>：自动检测 IBus / Fcitx5，配合 <code>GTK_IM_MODULE=ibus</code> / <code>XMODIFIERS=@im=ibus</code> 即可开箱即用</li>
+        <li><strong>实际效果</strong>：在 gnome-terminal、WezTerm 等 IME-aware 终端中，中文拼音输入及候选词选择完美运行</li>
+      </ul>
+      <div class="callout">
+        这曾被业界视为终端 TUI 的<strong>不可解难题</strong> — raw mode 与 IME 的经典冲突。OpenCode 通过精确控制 Kitty 键盘协议生命周期，彻底解决了这一问题。
+      </div>
+    </div>
+  </div>
+
+  <!-- 关键指标 -->
+  <div class="section">
+    <h2>📊 关键指标</h2>
+    <div class="grid-2">
+      <div class="stat-card">
+        <div class="stat-number green">282</div>
+        <div class="stat-label">测试全通过 / 0 失败</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent-green)"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number blue">70+</div>
+        <div class="stat-label">缺陷修复</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:88%;background:var(--accent)"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number orange">36</div>
+        <div class="stat-label">安全审计项 (8 高危已修)</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:78%;background:var(--accent-orange)"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number cyan">0</div>
+        <div class="stat-label">编译错误</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--accent-cyan)"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 八轮加固 -->
+  <div class="section">
+    <h2>🏆 八轮系统性加固</h2>
+    <table class="hardening-table">
+      <thead>
+        <tr><th>轮次</th><th>主题</th><th>修复数</th><th>测试数</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>🌐 i18n 中文本地化</td><td>15+</td><td>28</td></tr>
+        <tr><td>2</td><td>🛡️ 事件泄漏与内存安全</td><td>11+</td><td>22</td></tr>
+        <tr><td>3</td><td>🔧 深度内存安全与崩溃防护</td><td>15+</td><td>35</td></tr>
+        <tr><td>4</td><td>⚡ 性能优化与可观测性</td><td>8+</td><td>44</td></tr>
+        <tr><td>5</td><td>🧱 鲁棒性与容错</td><td>10+</td><td>87</td></tr>
+        <tr><td>6</td><td>🔒 安全审计与 CI 自动化</td><td>8</td><td>132</td></tr>
+        <tr><td>7</td><td>🀄 中文输入法修复 + 禁用自动更新</td><td>3</td><td>282</td></tr>
+        <tr><td>8</td><td>🚀 发布加固与二进制交付</td><td>5+</td><td>282</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 核心功能 -->
+  <div class="section">
+    <h2>✨ 核心功能</h2>
+    <ul class="feature-list">
+      <li><span class="feature-icon">🀄</span><div><strong>中文输入法原生支持</strong><span class="tag tag-new">NEW</span><br>终端 TUI + IME 经典冲突彻底解决，拼音输入及候选词选择完美运行</div></li>
+      <li><span class="feature-icon">🌐</span><div><strong>完整中文化</strong><span class="tag tag-new">NEW</span><br>635 个翻译 key 全量覆盖，<code>/locale zh</code> 一键切换</div></li>
+      <li><span class="feature-icon">🤖</span><div><strong>多模型 AI Agent</strong><br>支持 OpenAI、Anthropic、Google、Ollama、GLM 等 10+ Provider</div></li>
+      <li><span class="feature-icon">🔧</span><div><strong>MCP 工具集成</strong><br>Model Context Protocol — 扩展工具能力，连接外部服务</div></li>
+      <li><span class="feature-icon">📝</span><div><strong>会话管理</strong><br>会话列表、分支、继续 — 完整的对话历史和工作流</div></li>
+      <li><span class="feature-icon">⚡</span><div><strong>终端原生体验</strong><br>Ink + React 渲染，纯终端 TUI，无需浏览器</div></li>
+      <li><span class="feature-icon">🔒</span><div><strong>工业级安全</strong><span class="tag tag-hot">HOT</span><br>36 项安全审计，132 项安全测试，8 项高危已修复</div></li>
+      <li><span class="feature-icon">🚫</span><div><strong>禁用自动更新</strong><span class="tag tag-fix">FIX</span><br>避免生产环境意外升级，完全掌控版本</div></li>
+    </ul>
+  </div>
+
+  <!-- 安装 -->
+  <div class="section">
+    <h2>📦 安装与使用</h2>
+    <h3>方式一：下载预编译二进制（推荐）</h3>
+    <div class="code-block">
+      <span class="comment"># 1. 下载二进制（从 Gitee Release）</span><br>
+      <span class="cmd">wget</span> https://gitee.com/xusuai/opencode-cn/releases/download/v1.0-CN/opencode-linux-x64.tar.gz<br><br>
+      <span class="comment"># 2. 解压并赋予执行权限</span><br>
+      <span class="cmd">tar</span> xzf opencode-linux-x64.tar.gz<br>
+      <span class="cmd">chmod</span> +x bin/opencode<br><br>
+      <span class="comment"># 3. 运行</span><br>
+      <span class="cmd">./bin/opencode</span>
+    </div>
+    <h3>方式二：从源码构建</h3>
+    <div class="code-block">
+      <span class="comment"># 克隆仓库</span><br>
+      <span class="cmd">git</span> clone https://gitee.com/xusuai/opencode-cn.git<br>
+      <span class="cmd">cd</span> opencode<br><br>
+      <span class="comment"># 安装依赖</span><br>
+      <span class="cmd">npx</span> bun install<br><br>
+      <span class="comment"># 构建</span><br>
+      <span class="cmd">npx</span> bun run build<br><br>
+      <span class="comment"># 运行</span><br>
+      <span class="cmd">npx</span> bun run dev
+    </div>
+    <h3>🀄 中文输入法配置</h3>
+    <div class="code-block">
+      <span class="comment"># 确保 ~/.bashrc 中设置了以下环境变量</span><br>
+      <span class="cmd">export</span> <span class="flag">GTK_IM_MODULE</span>=ibus<br>
+      <span class="cmd">export</span> <span class="flag">QT_IM_MODULE</span>=ibus<br>
+      <span class="cmd">export</span> <span class="flag">XMODIFIERS</span>=@im=ibus<br><br>
+      <span class="comment"># 在 OpenCode 中切换中文界面</span><br>
+      <span class="cmd">/locale</span> zh
+    </div>
+  </div>
+
+  <!-- 安全 -->
+  <div class="section">
+    <h2>🔒 安全加固</h2>
+    <div class="grid-2">
+      <div class="stat-card">
+        <div class="stat-number" style="color:var(--accent-red)">8</div>
+        <div class="stat-label">高危漏洞已修复</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" style="color:var(--accent-purple)">132</div>
+        <div class="stat-label">专项安全测试</div>
+      </div>
+    </div>
+    <ul class="feature-list" style="margin-top:20px">
+      <li><span class="feature-icon">🛡️</span><div><strong>命令注入防护</strong> — 所有 shell 调用使用参数数组，禁止字符串拼接</div></li>
+      <li><span class="feature-icon">📂</span><div><strong>路径遍历防护</strong> — 文件操作规范化路径，沙箱边界检查</div></li>
+      <li><span class="feature-icon">🔑</span><div><strong>敏感信息保护</strong> — 日志和错误消息自动过滤 API Key / Token</div></li>
+      <li><span class="feature-icon">🌐</span><div><strong>SSRF 防护</strong> — 网络请求 URL 校验，防止内网探测</div></li>
+      <li><span class="feature-icon">📡</span><div><strong>ANSI 注入防御</strong> — MCP 输出控制符清洗，防止终端注入</div></li>
+    </ul>
+  </div>
+
+  <!-- 链接 -->
+  <div class="section">
+    <h2>🔗 相关链接</h2>
+    <div class="grid-2">
+      <a href="https://gitee.com/xusuai/opencode-cn" class="stat-card" style="text-decoration:none;color:var(--text)">
+        <div class="stat-number" style="font-size:1.5rem">📂</div>
+        <div class="stat-label">Gitee 源码仓库</div>
+      </a>
+      <a href="https://gitee.com/xusuai/opencode-cn/releases/v1.0-CN" class="stat-card" style="text-decoration:none;color:var(--text)">
+        <div class="stat-number" style="font-size:1.5rem">⬇️</div>
+        <div class="stat-label">下载 Release</div>
+      </a>
+      <a href="https://github.com/anomalyco/opencode" class="stat-card" style="text-decoration:none;color:var(--text)">
+        <div class="stat-number" style="font-size:1.5rem">🐙</div>
+        <div class="stat-label">原版 GitHub 仓库</div>
+      </a>
+      <a href="https://gitee.com/xusuai/opencode-cn/blob/dev/SECURITY-REPORT.md" class="stat-card" style="text-decoration:none;color:var(--text)">
+        <div class="stat-number" style="font-size:1.5rem">📋</div>
+        <div class="stat-label">安全报告</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>OpenCode v1.0-CN · 基于 <a href="https://github.com/anomalyco/opencode">anomalyco/opencode</a> 深度定制</p>
+  <p style="margin-top:8px">八轮安全加固 · 中文输入法突破 · 282 测试全通过</p>
+</div>
+
+</body>
+</html>

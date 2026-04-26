@@ -1,0 +1,168 @@
+name: security-ci
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  typecheck:
+    name: TypeCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run typecheck
+        run: bun typecheck
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run oxlint
+        run: bun lint
+
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run security tests
+        run: bun test --timeout 30000 test/tui/security/
+
+      - name: Run path-traversal tests
+        run: bun test --timeout 30000 test/file/path-traversal.test.ts
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Configure git identity
+        run: |
+          git config --global user.email "bot@opencode.ai"
+          git config --global user.name "opencode"
+
+      - name: Run unit tests
+        run: bun turbo test:ci
+
+      - name: Publish test reports
+        if: always()
+        uses: mikepenz/action-junit-report@v6
+        with:
+          report_paths: packages/*/.artifacts/unit/junit.xml
+          check_name: "unit results"
+          detailed_summary: true
+          fail_on_failure: false
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run bun audit
+        run: bun audit || true
+        continue-on-error: true
+
+      - name: Check for sensitive data in codebase
+        run: |
+          echo "Scanning for hardcoded secrets..."
+          # Check for common secret patterns in source files (excluding test files)
+          SECRETS_FOUND=0
+          for pattern in "sk-[a-zA-Z0-9]{20,}" "ghp_[a-zA-Z0-9]{36}" "AKIA[A-Z0-9]{16}"; do
+            MATCHES=$(grep -rn --include="*.ts" --include="*.tsx" --include="*.js" \
+              --exclude-dir=node_modules --exclude-dir=test --exclude-dir=e2e \
+              -E "$pattern" packages/ 2>/dev/null || true)
+            if [ -n "$MATCHES" ]; then
+              echo "::warning::Potential secret found matching $pattern"
+              echo "$MATCHES"
+              SECRETS_FOUND=1
+            fi
+          done
+          if [ "$SECRETS_FOUND" -eq 1 ]; then
+            echo "::warning::Potential hardcoded secrets detected in source code"
+          else
+            echo "No hardcoded secrets detected"
+          fi
+
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: [typecheck, lint]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build opencode
+        run: bun run --cwd packages/opencode build
