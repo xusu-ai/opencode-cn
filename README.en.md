@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://gitee.com/xusuai/opencode-cn">
+  <a href="https://github.com/xusu-ai/opencode-cn">
     <picture>
       <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
       <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
@@ -9,7 +9,7 @@
 </p>
 <p align="center">The Open Source AI Coding Agent · China Edition</p>
 <p align="center">
-  <a href="https://gitee.com/xusuai/opencode-cn/releases"><img alt="Release" src="https://img.shields.io/badge/release-v1.14.21--CN-blue?style=flat-square" /></a>
+  <a href="https://github.com/xusu-ai/opencode-cn/releases"><img alt="Release" src="https://img.shields.io/badge/release-v1.14.21--CN-blue?style=flat-square" /></a>
   <img alt="Tests" src="https://img.shields.io/badge/tests-282%20pass-brightgreen?style=flat-square" />
   <img alt="Security" src="https://img.shields.io/badge/security-132%20tests-blue?style=flat-square" />
   <img alt="Hardening" src="https://img.shields.io/badge/hardened-8%20rounds-orange?style=flat-square" />
@@ -30,7 +30,7 @@
 
 ### Binary Releases (Recommended)
 
-Download pre-compiled binaries for your platform from [Releases](https://gitee.com/xusuai/opencode-cn/releases):
+Download pre-compiled binaries for your platform from [Releases](https://github.com/xusu-ai/opencode-cn/releases):
 
 | Platform | Arch | Filename | Notes |
 |----------|------|----------|-------|
@@ -74,7 +74,7 @@ opencode serve --port 8090 --hostname 0.0.0.0
 
 ```bash
 # Clone the repo
-git clone https://gitee.com/xusuai/opencode-cn.git
+git clone https://github.com/xusu-ai/opencode-cn.git
 cd opencode-cn
 
 # Install dependencies (requires Bun 1.3+)
