@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Close inactive PRs
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
