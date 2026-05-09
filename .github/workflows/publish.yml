@@ -95,14 +95,14 @@ jobs:
           GH_REPO: ${{ needs.version.outputs.repo }}
           GH_TOKEN: ${{ steps.committer.outputs.token }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: opencode-cli
           path: |
             packages/opencode/dist/opencode-darwin*
             packages/opencode/dist/opencode-linux*
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: opencode-cli-windows
           path: packages/opencode/dist/opencode-windows*
@@ -201,7 +201,7 @@ jobs:
             --clobber `
             --repo "${{ needs.version.outputs.repo }}"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: opencode-cli-signed-windows
           path: |
@@ -529,12 +529,12 @@ jobs:
             }
           }
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: opencode-electron-${{ matrix.settings.target }}
           path: packages/desktop-electron/dist/*
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: needs.version.outputs.release
         with:
           name: latest-yml-${{ matrix.settings.target }}
