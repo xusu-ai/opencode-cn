@@ -129,7 +129,7 @@
     "@pierre/diffs": "catalog:",
     "@solid-primitives/event-bus": "1.1.2",
     "@solid-primitives/i18n": "2.2.1",
-    "@solid-primitives/scheduled": "1.5.2",
+    "@solid-primitives/scheduled": "1.5.3",
     "@standard-schema/spec": "1.0.0",
     "@zip.js/zip.js": "2.7.62",
     "ai": "catalog:",
