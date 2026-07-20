@@ -56,7 +56,7 @@
     "zod-openapi": "5.4.6"
   },
   "optionalDependencies": {
-    "@lydell/node-pty-darwin-arm64": "1.2.0-beta.10",
+    "@lydell/node-pty-darwin-arm64": "1.2.0-beta.14",
     "@lydell/node-pty-darwin-x64": "1.2.0-beta.12",
     "@lydell/node-pty-linux-arm64": "1.2.0-beta.10",
     "@lydell/node-pty-linux-x64": "1.2.0-beta.10",
