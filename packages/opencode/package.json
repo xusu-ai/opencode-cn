@@ -168,7 +168,7 @@
     "solid-js": "catalog:",
     "strip-ansi": "7.1.2",
     "tree-sitter-bash": "0.25.0",
-    "tree-sitter-powershell": "0.25.10",
+    "tree-sitter-powershell": "0.26.4",
     "turndown": "7.2.0",
     "ulid": "catalog:",
     "venice-ai-sdk-provider": "2.0.1",
